@@ -1,7 +1,7 @@
 // Copyright 2021, University of Colorado Boulder
 
 /**
- * sound-board-specific grunt configuration
+ * skiffle-specific grunt configuration
  *
  * @author John Blanco (PhET Interactive Simulations)
  */
@@ -10,12 +10,14 @@
 
 // modules
 const grunt = require( 'grunt' ); // eslint-disable-line
+const Gruntfile = require( '../../chipper/js/grunt/Gruntfile' );
 const winston = require( 'winston' );
 
 // constants
 const ACTIVE_REPOS_FILE = '../perennial/data/active-repos';
 
 module.exports = grunt => {
+  Gruntfile( grunt );
 
   grunt.registerTask(
     'build',
