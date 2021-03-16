@@ -1,10 +1,16 @@
 {
-  "name": "sound-board",
+  "name": "skiffle",
   "version": "0.0.1",
   "description": "An HTML page that allows users to try out all the currently available sounds used in PhET sims.",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "devDependencies": {
     "grunt": "~1.1.0",
     "winston": "^0.9.0"
+  },
+  "eslintConfig": {
+    "extends": "../chipper/eslint/node_eslintrc.js",
+    "globals": {
+      "skiffle": "readonly"
+    }
   }
 }

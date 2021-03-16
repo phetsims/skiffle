@@ -36,7 +36,7 @@ module.exports = grunt => {
 
       // Make a list of all repos with sound files.
       const reposWithSoundFiles = activeRepos.filter( activeRepo => {
-        const pathToCheck = '../' + activeRepo + '/sounds';
+        const pathToCheck = `../${activeRepo}/sounds`;
         return grunt.file.exists( pathToCheck );
       } );
 
@@ -52,13 +52,13 @@ module.exports = grunt => {
         soundControlHtml += '  <div class="content">\n';
 
         // Get a list of the sounds for this repo.
-        const pathToSoundsDirectory = '../' + repoWithSoundFiles + '/sounds/';
-        const patterns = [ pathToSoundsDirectory + '*.mp3', pathToSoundsDirectory + '*.wav' ];
+        const pathToSoundsDirectory = `../${repoWithSoundFiles}/sounds/`;
+        const patterns = [ `${pathToSoundsDirectory}*.mp3`, `${pathToSoundsDirectory}*.wav` ];
         const soundFileNames = grunt.file.expand( { filter: 'isFile' }, patterns );
 
         // Create buttons for the sounds and group them together.
         const numberOfSoundsPerButtonGroup = 4;
-        for ( let i = 0; i < soundFileNames.length; i += numberOfSoundsPerButtonGroup ){
+        for ( let i = 0; i < soundFileNames.length; i += numberOfSoundsPerButtonGroup ) {
 
           // Output HTML for the button group.
           soundControlHtml += '    <div class="btn-group">\n';
@@ -73,10 +73,10 @@ module.exports = grunt => {
             // If the name of the sound file is too long, create a shortened version with an ellipsis.
             const maxButtonLabelLength = 20;
             let buttonLabel;
-            if ( soundFileNameOnly.length > maxButtonLabelLength ){
-              buttonLabel = soundFileNameOnly.substring( 0, maxButtonLabelLength - 3 ) + '...';
+            if ( soundFileNameOnly.length > maxButtonLabelLength ) {
+              buttonLabel = `${soundFileNameOnly.substring( 0, maxButtonLabelLength - 3 )}...`;
             }
-            else{
+            else {
               buttonLabel = soundFileNameOnly;
             }
             soundControlHtml += `      <button title="${soundFileNameOnly}" onClick="playSound( '../${soundFile}' )">${buttonLabel}</button>\n`;
@@ -103,4 +103,4 @@ module.exports = grunt => {
 
   // register default task
   grunt.registerTask( 'default', [ 'build' ] );
-}
+};
