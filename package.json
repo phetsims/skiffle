@@ -1,0 +1,10 @@
+{
+  "name": "sound-board",
+  "version": "0.0.1",
+  "description": "An HTML page that allows users to try out all the currently available sounds used in PhET sims.",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~1.1.0",
+    "winston": "^0.9.0"
+  }
+}

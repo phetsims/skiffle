@@ -1,0 +1,485 @@
+<!-- Copyright 2021, University of Colorado Boulder -->
+
+<!Doctype html>
+<html lang="en-us">
+<style>
+
+  body {
+    background-color: #F1F2EE;
+  }
+
+  .btn-group button {
+    background-color: #B0E0E6;
+    border: 1px solid green;
+    color: black;
+    padding: 10px 24px;
+    cursor: pointer;
+    float: left;
+    margin-bottom: 10px;
+  }
+
+  /* Clear floats (clearfix hack) */
+  .btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+  .btn-group button:not(:last-child) {
+    border-right: none; /* Prevent double borders */
+  }
+
+  /* Add a background color on hover */
+  .btn-group button:hover {
+    background-color: lightsteelblue;
+  }
+
+  .collapsible {
+    background-color: #1e4e20;
+    color: whitesmoke;
+    cursor: pointer;
+    padding: 10px;
+    width: 75%;
+    border: 1px solid grey;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+  }
+
+  .active, .collapsible:hover {
+    background-color: #448344;
+  }
+
+  .content {
+    display: none;
+    overflow: hidden;
+    background-color: #00aa88;
+    width: 75%;
+  }
+</style>
+<body>
+
+<h1>PhET Sound Board</h1>
+
+<script>
+
+  // create a Web Audio context
+  let audioContext = null;
+  if ( window.AudioContext ) {
+    audioContext = new window.AudioContext();
+  }
+  else if ( window.webkitAudioContext ) {
+    audioContext = new window.webkitAudioContext();
+  }
+  else {
+
+    // The browser doesn't support creating an audio context, create an empty object.  Failures will occur the first time
+    // any code tries to do anything with the audio context.
+    audioContext = {};
+    console.error( 'error: this browser does not support Web Audio' );
+  }
+
+  // Map.<string,AudioBuffer> - map of file paths to decoded audio buffers, used to cache decoded audio data
+  const filePathToDecodedAudioBufferMap = new Map();
+
+  // function to play a previously decoded audio buffer
+  const playAudioBuffer = audioBuffer => {
+    const bufferSource = audioContext.createBufferSource();
+    bufferSource.buffer = audioBuffer;
+    bufferSource.connect( audioContext.destination );
+    bufferSource.start();
+  };
+
+  // function to play a sound file, will used cached data if possible or will initiate decode if not
+  const playSound = soundUrl => {
+    const audioBuffer = filePathToDecodedAudioBufferMap.get( soundUrl );
+    if ( audioBuffer ) {
+
+      // This file has already been decoded, so just play it.
+      playAudioBuffer( audioBuffer );
+    }
+    else{
+
+      // This is the first time this file has been played, so it needs to be decoded and then played.
+      window.fetch( soundUrl )
+        .then( response => response.arrayBuffer() )
+        .then( arrayBuffer => audioContext.decodeAudioData( arrayBuffer ) )
+        .then( audioBuffer => {
+          filePathToDecodedAudioBufferMap.set( soundUrl, audioBuffer );
+          playAudioBuffer( audioBuffer );
+        } )
+      .catch( error => {
+          console.log( 'unable to play file ' + soundUrl + ', error = ' + error );
+      } );
+    }
+  }
+
+</script>
+
+<section>
+  <button type="button" class="collapsible">balloons-and-static-electricity</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="balloon-grab-006.mp3" onClick="playSound( '../../balloons-and-static-electricity/sounds/balloon-grab-006.mp3' )">balloon-grab-006.mp3</button>
+      <button title="balloon-hit-sweater.mp3" onClick="playSound( '../../balloons-and-static-electricity/sounds/balloon-hit-sweater.mp3' )">balloon-hit-sweat...</button>
+      <button title="balloon-release-006.mp3" onClick="playSound( '../../balloons-and-static-electricity/sounds/balloon-release-006.mp3' )">balloon-release-0...</button>
+      <button title="wall-contact.mp3" onClick="playSound( '../../balloons-and-static-electricity/sounds/wall-contact.mp3' )">wall-contact.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="carrier-000.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/carrier-000.wav' )">carrier-000.wav</button>
+      <button title="carrier-002.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/carrier-002.wav' )">carrier-002.wav</button>
+      <button title="charges-organ-loop-one-octave-up.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-organ-loop-one-octave-up.wav' )">charges-organ-loo...</button>
+      <button title="charges-organ-loop.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-organ-loop.wav' )">charges-organ-loo...</button>
+    </div>
+    <div class="btn-group">
+      <button title="charges-synthy-loop-one-octave-up.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-synthy-loop-one-octave-up.wav' )">charges-synthy-lo...</button>
+      <button title="charges-synthy-loop.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-synthy-loop.wav' )">charges-synthy-lo...</button>
+      <button title="charges-wall-electronic-hum-loop.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-wall-electronic-hum-loop.wav' )">charges-wall-elec...</button>
+      <button title="charges-wall-saturated-electronic-hum-loop.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-wall-saturated-electronic-hum-loop.wav' )">charges-wall-satu...</button>
+    </div>
+    <div class="btn-group">
+      <button title="charges-wall-saturated-sine-wave-loop.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-wall-saturated-sine-wave-loop.wav' )">charges-wall-satu...</button>
+      <button title="charges-wall-sine-wave-loop.wav" onClick="playSound( '../../balloons-and-static-electricity/sounds/charges-wall-sine-wave-loop.wav' )">charges-wall-sine...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">circuit-construction-kit-common</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="dog-bark.mp3" onClick="playSound( '../../circuit-construction-kit-common/sounds/dog-bark.mp3' )">dog-bark.mp3</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">faradays-law</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="coil-bump-high.mp3" onClick="playSound( '../../faradays-law/sounds/coil-bump-high.mp3' )">coil-bump-high.mp3</button>
+      <button title="coil-bump-low.mp3" onClick="playSound( '../../faradays-law/sounds/coil-bump-low.mp3' )">coil-bump-low.mp3</button>
+      <button title="grab-magnet.mp3" onClick="playSound( '../../faradays-law/sounds/grab-magnet.mp3' )">grab-magnet.mp3</button>
+      <button title="lightbulb-voltage-note-b-flat-4.mp3" onClick="playSound( '../../faradays-law/sounds/lightbulb-voltage-note-b-flat-4.mp3' )">lightbulb-voltage...</button>
+    </div>
+    <div class="btn-group">
+      <button title="lightbulb-voltage-note-c-4.mp3" onClick="playSound( '../../faradays-law/sounds/lightbulb-voltage-note-c-4.mp3' )">lightbulb-voltage...</button>
+      <button title="lightbulb-voltage-note-c-5.mp3" onClick="playSound( '../../faradays-law/sounds/lightbulb-voltage-note-c-5.mp3' )">lightbulb-voltage...</button>
+      <button title="lightbulb-voltage-note-e-4.mp3" onClick="playSound( '../../faradays-law/sounds/lightbulb-voltage-note-e-4.mp3' )">lightbulb-voltage...</button>
+      <button title="lightbulb-voltage-note-g-4.mp3" onClick="playSound( '../../faradays-law/sounds/lightbulb-voltage-note-g-4.mp3' )">lightbulb-voltage...</button>
+    </div>
+    <div class="btn-group">
+      <button title="release-magnet.mp3" onClick="playSound( '../../faradays-law/sounds/release-magnet.mp3' )">release-magnet.mp3</button>
+      <button title="voltage-max-click.mp3" onClick="playSound( '../../faradays-law/sounds/voltage-max-click.mp3' )">voltage-max-click...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">forces-and-motion-basics</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="golf-clap.mp3" onClick="playSound( '../../forces-and-motion-basics/sounds/golf-clap.mp3' )">golf-clap.mp3</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">friction</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="bounce-marimba.mp3" onClick="playSound( '../../friction/sounds/bounce-marimba.mp3' )">bounce-marimba.mp3</button>
+      <button title="break-off-autosinfonie-spatialized.mp3" onClick="playSound( '../../friction/sounds/break-off-autosinfonie-spatialized.mp3' )">break-off-autosin...</button>
+      <button title="contact-lower.mp3" onClick="playSound( '../../friction/sounds/contact-lower.mp3' )">contact-lower.mp3</button>
+      <button title="harp-drop.mp3" onClick="playSound( '../../friction/sounds/harp-drop.mp3' )">harp-drop.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="harp-pickup.mp3" onClick="playSound( '../../friction/sounds/harp-pickup.mp3' )">harp-pickup.mp3</button>
+      <button title="simple-drop.mp3" onClick="playSound( '../../friction/sounds/simple-drop.mp3' )">simple-drop.mp3</button>
+      <button title="simple-pickup.mp3" onClick="playSound( '../../friction/sounds/simple-pickup.mp3' )">simple-pickup.mp3</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">gravity-force-lab</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="rubber-band-v3.mp3" onClick="playSound( '../../gravity-force-lab/sounds/rubber-band-v3.mp3' )">rubber-band-v3.mp3</button>
+      <button title="scrunched-mass-collision-sonic-womp.mp3" onClick="playSound( '../../gravity-force-lab/sounds/scrunched-mass-collision-sonic-womp.mp3' )">scrunched-mass-co...</button>
+      <button title="saturated-sine-loop-trimmed.wav" onClick="playSound( '../../gravity-force-lab/sounds/saturated-sine-loop-trimmed.wav' )">saturated-sine-lo...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">inverse-square-law-common</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="ruler-movement-000.mp3" onClick="playSound( '../../inverse-square-law-common/sounds/ruler-movement-000.mp3' )">ruler-movement-00...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">john-travoltage</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="arm-position-001.mp3" onClick="playSound( '../../john-travoltage/sounds/arm-position-001.mp3' )">arm-position-001.mp3</button>
+      <button title="arm-position-002.mp3" onClick="playSound( '../../john-travoltage/sounds/arm-position-002.mp3' )">arm-position-002.mp3</button>
+      <button title="arm-position-003.mp3" onClick="playSound( '../../john-travoltage/sounds/arm-position-003.mp3' )">arm-position-003.mp3</button>
+      <button title="arm-position-004.mp3" onClick="playSound( '../../john-travoltage/sounds/arm-position-004.mp3' )">arm-position-004.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="arm-position-005.mp3" onClick="playSound( '../../john-travoltage/sounds/arm-position-005.mp3' )">arm-position-005.mp3</button>
+      <button title="arm-position-006.mp3" onClick="playSound( '../../john-travoltage/sounds/arm-position-006.mp3' )">arm-position-006.mp3</button>
+      <button title="charges-in-body.mp3" onClick="playSound( '../../john-travoltage/sounds/charges-in-body.mp3' )">charges-in-body.mp3</button>
+      <button title="electric-discharge.mp3" onClick="playSound( '../../john-travoltage/sounds/electric-discharge.mp3' )">electric-discharg...</button>
+    </div>
+    <div class="btn-group">
+      <button title="gazouch.mp3" onClick="playSound( '../../john-travoltage/sounds/gazouch.mp3' )">gazouch.mp3</button>
+      <button title="ouch.mp3" onClick="playSound( '../../john-travoltage/sounds/ouch.mp3' )">ouch.mp3</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">joist</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="screen-selection-home-v3.mp3" onClick="playSound( '../../joist/sounds/screen-selection-home-v3.mp3' )">screen-selection-...</button>
+      <button title="screen-selection.mp3" onClick="playSound( '../../joist/sounds/screen-selection.mp3' )">screen-selection.mp3</button>
+      <button title="switching-screen-selector-icons-003.mp3" onClick="playSound( '../../joist/sounds/switching-screen-selector-icons-003.mp3' )">switching-screen-...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">molarity</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="precipitate.mp3" onClick="playSound( '../../molarity/sounds/precipitate.mp3' )">precipitate.mp3</button>
+      <button title="soft-no-solute-v2.mp3" onClick="playSound( '../../molarity/sounds/soft-no-solute-v2.mp3' )">soft-no-solute-v2...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">molecules-and-light</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="absorb-photon.mp3" onClick="playSound( '../../molecules-and-light/sounds/absorb-photon.mp3' )">absorb-photon.mp3</button>
+      <button title="break-apart.mp3" onClick="playSound( '../../molecules-and-light/sounds/break-apart.mp3' )">break-apart.mp3</button>
+      <button title="energized.mp3" onClick="playSound( '../../molecules-and-light/sounds/energized.mp3' )">energized.mp3</button>
+      <button title="photon-emit-ir.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-emit-ir.mp3' )">photon-emit-ir.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="photon-emit-microwave.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-emit-microwave.mp3' )">photon-emit-micro...</button>
+      <button title="photon-emit-uv.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-emit-uv.mp3' )">photon-emit-uv.mp3</button>
+      <button title="photon-emit-visible.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-emit-visible.mp3' )">photon-emit-visib...</button>
+      <button title="photon-release-ir.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-release-ir.mp3' )">photon-release-ir...</button>
+    </div>
+    <div class="btn-group">
+      <button title="photon-release-microwave.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-release-microwave.mp3' )">photon-release-mi...</button>
+      <button title="photon-release-uv.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-release-uv.mp3' )">photon-release-uv...</button>
+      <button title="photon-release-visible.mp3" onClick="playSound( '../../molecules-and-light/sounds/photon-release-visible.mp3' )">photon-release-vi...</button>
+      <button title="rotation-clockwise-slow-motion.mp3" onClick="playSound( '../../molecules-and-light/sounds/rotation-clockwise-slow-motion.mp3' )">rotation-clockwis...</button>
+    </div>
+    <div class="btn-group">
+      <button title="rotation-clockwise.mp3" onClick="playSound( '../../molecules-and-light/sounds/rotation-clockwise.mp3' )">rotation-clockwis...</button>
+      <button title="rotation-counterclockwise-slow-motion.mp3" onClick="playSound( '../../molecules-and-light/sounds/rotation-counterclockwise-slow-motion.mp3' )">rotation-counterc...</button>
+      <button title="rotation-counterclockwise.mp3" onClick="playSound( '../../molecules-and-light/sounds/rotation-counterclockwise.mp3' )">rotation-counterc...</button>
+      <button title="vibration-slow-motion.mp3" onClick="playSound( '../../molecules-and-light/sounds/vibration-slow-motion.mp3' )">vibration-slow-mo...</button>
+    </div>
+    <div class="btn-group">
+      <button title="vibration.mp3" onClick="playSound( '../../molecules-and-light/sounds/vibration.mp3' )">vibration.mp3</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">ohms-law</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="current-v3-loop.mp3" onClick="playSound( '../../ohms-law/sounds/current-v3-loop.mp3' )">current-v3-loop.mp3</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">plinko-probability</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="bonk-1-for-plinko.mp3" onClick="playSound( '../../plinko-probability/sounds/bonk-1-for-plinko.mp3' )">bonk-1-for-plinko...</button>
+      <button title="bonk-2-for-plinko.mp3" onClick="playSound( '../../plinko-probability/sounds/bonk-2-for-plinko.mp3' )">bonk-2-for-plinko...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">ratio-and-proportion</button>
+  <div class="content">
+  </div>
+  <button type="button" class="collapsible">tambo</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="07_Button_Reset_All_v3-128-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/07_Button_Reset_All_v3-128-kbps-mono.mp3' )">07_Button_Reset_A...</button>
+      <button title="07_Button_Reset_All_v3-16-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/07_Button_Reset_All_v3-16-kbps-mono.mp3' )">07_Button_Reset_A...</button>
+      <button title="07_Button_Reset_All_v3-24-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/07_Button_Reset_All_v3-24-kbps-mono.mp3' )">07_Button_Reset_A...</button>
+      <button title="07_Button_Reset_All_v3-48-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/07_Button_Reset_All_v3-48-kbps-mono.mp3' )">07_Button_Reset_A...</button>
+    </div>
+    <div class="btn-group">
+      <button title="07_Button_Reset_All_v3-64-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/07_Button_Reset_All_v3-64-kbps-mono.mp3' )">07_Button_Reset_A...</button>
+      <button title="07_Button_Reset_All_v3-8-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/07_Button_Reset_All_v3-8-kbps-mono.mp3' )">07_Button_Reset_A...</button>
+      <button title="20180213_Bright_Marimba-128-kbps-stereo.mp3" onClick="playSound( '../../tambo/sounds/20180213_Bright_Marimba-128-kbps-stereo.mp3' )">20180213_Bright_M...</button>
+      <button title="20180213_Bright_Marimba-16-kbps-stereo.mp3" onClick="playSound( '../../tambo/sounds/20180213_Bright_Marimba-16-kbps-stereo.mp3' )">20180213_Bright_M...</button>
+    </div>
+    <div class="btn-group">
+      <button title="20180213_Bright_Marimba-24-kbps-stereo.mp3" onClick="playSound( '../../tambo/sounds/20180213_Bright_Marimba-24-kbps-stereo.mp3' )">20180213_Bright_M...</button>
+      <button title="20180213_Bright_Marimba-48-kbps-stereo.mp3" onClick="playSound( '../../tambo/sounds/20180213_Bright_Marimba-48-kbps-stereo.mp3' )">20180213_Bright_M...</button>
+      <button title="20180213_Bright_Marimba-64-kbps-stereo.mp3" onClick="playSound( '../../tambo/sounds/20180213_Bright_Marimba-64-kbps-stereo.mp3' )">20180213_Bright_M...</button>
+      <button title="20180213_Bright_Marimba-8-kbps-stereo.mp3" onClick="playSound( '../../tambo/sounds/20180213_Bright_Marimba-8-kbps-stereo.mp3' )">20180213_Bright_M...</button>
+    </div>
+    <div class="btn-group">
+      <button title="220hz-saturated-sine-loop.mp3" onClick="playSound( '../../tambo/sounds/220hz-saturated-sine-loop.mp3' )">220hz-saturated-s...</button>
+      <button title="accordion-box-close.mp3" onClick="playSound( '../../tambo/sounds/accordion-box-close.mp3' )">accordion-box-clo...</button>
+      <button title="accordion-box-open.mp3" onClick="playSound( '../../tambo/sounds/accordion-box-open.mp3' )">accordion-box-ope...</button>
+      <button title="bird-call.mp3" onClick="playSound( '../../tambo/sounds/bird-call.mp3' )">bird-call.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="boundary-reached.mp3" onClick="playSound( '../../tambo/sounds/boundary-reached.mp3' )">boundary-reached.mp3</button>
+      <button title="bright-marimba-short.mp3" onClick="playSound( '../../tambo/sounds/bright-marimba-short.mp3' )">bright-marimba-sh...</button>
+      <button title="bright-marimba.mp3" onClick="playSound( '../../tambo/sounds/bright-marimba.mp3' )">bright-marimba.mp3</button>
+      <button title="ceiling-floor-contact.mp3" onClick="playSound( '../../tambo/sounds/ceiling-floor-contact.mp3' )">ceiling-floor-con...</button>
+    </div>
+    <div class="btn-group">
+      <button title="Charges_In_Body_Better_Loop-128-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/Charges_In_Body_Better_Loop-128-kbps-mono.mp3' )">Charges_In_Body_B...</button>
+      <button title="Charges_In_Body_Better_Loop-16-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/Charges_In_Body_Better_Loop-16-kbps-mono.mp3' )">Charges_In_Body_B...</button>
+      <button title="Charges_In_Body_Better_Loop-24-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/Charges_In_Body_Better_Loop-24-kbps-mono.mp3' )">Charges_In_Body_B...</button>
+      <button title="Charges_In_Body_Better_Loop-48-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/Charges_In_Body_Better_Loop-48-kbps-mono.mp3' )">Charges_In_Body_B...</button>
+    </div>
+    <div class="btn-group">
+      <button title="Charges_In_Body_Better_Loop-64-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/Charges_In_Body_Better_Loop-64-kbps-mono.mp3' )">Charges_In_Body_B...</button>
+      <button title="Charges_In_Body_Better_Loop-8-kbps-mono.mp3" onClick="playSound( '../../tambo/sounds/Charges_In_Body_Better_Loop-8-kbps-mono.mp3' )">Charges_In_Body_B...</button>
+      <button title="charges-in-body-better.mp3" onClick="playSound( '../../tambo/sounds/charges-in-body-better.mp3' )">charges-in-body-b...</button>
+      <button title="checkbox-checked.mp3" onClick="playSound( '../../tambo/sounds/checkbox-checked.mp3' )">checkbox-checked.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="checkbox-unchecked.mp3" onClick="playSound( '../../tambo/sounds/checkbox-unchecked.mp3' )">checkbox-unchecke...</button>
+      <button title="click-001.mp3" onClick="playSound( '../../tambo/sounds/click-001.mp3' )">click-001.mp3</button>
+      <button title="crickets-loop.mp3" onClick="playSound( '../../tambo/sounds/crickets-loop.mp3' )">crickets-loop.mp3</button>
+      <button title="edge-boundary-bottle.mp3" onClick="playSound( '../../tambo/sounds/edge-boundary-bottle.mp3' )">edge-boundary-bot...</button>
+    </div>
+    <div class="btn-group">
+      <button title="empty_apartment_bedroom_06_resampled.mp3" onClick="playSound( '../../tambo/sounds/empty_apartment_bedroom_06_resampled.mp3' )">empty_apartment_b...</button>
+      <button title="general-boundary-boop.mp3" onClick="playSound( '../../tambo/sounds/general-boundary-boop.mp3' )">general-boundary-...</button>
+      <button title="general-button-001.mp3" onClick="playSound( '../../tambo/sounds/general-button-001.mp3' )">general-button-00...</button>
+      <button title="general-button-002.mp3" onClick="playSound( '../../tambo/sounds/general-button-002.mp3' )">general-button-00...</button>
+    </div>
+    <div class="btn-group">
+      <button title="general-button-003.mp3" onClick="playSound( '../../tambo/sounds/general-button-003.mp3' )">general-button-00...</button>
+      <button title="general-button-v3.mp3" onClick="playSound( '../../tambo/sounds/general-button-v3.mp3' )">general-button-v3...</button>
+      <button title="general-button-v4.mp3" onClick="playSound( '../../tambo/sounds/general-button-v4.mp3' )">general-button-v4...</button>
+      <button title="general-close.mp3" onClick="playSound( '../../tambo/sounds/general-close.mp3' )">general-close.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="general-open.mp3" onClick="playSound( '../../tambo/sounds/general-open.mp3' )">general-open.mp3</button>
+      <button title="general-soft-click.mp3" onClick="playSound( '../../tambo/sounds/general-soft-click.mp3' )">general-soft-clic...</button>
+      <button title="grab-001.mp3" onClick="playSound( '../../tambo/sounds/grab-001.mp3' )">grab-001.mp3</button>
+      <button title="grab-002.mp3" onClick="playSound( '../../tambo/sounds/grab-002.mp3' )">grab-002.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="grab-release-v2.mp3" onClick="playSound( '../../tambo/sounds/grab-release-v2.mp3' )">grab-release-v2.mp3</button>
+      <button title="grab-v2.mp3" onClick="playSound( '../../tambo/sounds/grab-v2.mp3' )">grab-v2.mp3</button>
+      <button title="grab.mp3" onClick="playSound( '../../tambo/sounds/grab.mp3' )">grab.mp3</button>
+      <button title="loon-call.mp3" onClick="playSound( '../../tambo/sounds/loon-call.mp3' )">loon-call.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="pause-001.mp3" onClick="playSound( '../../tambo/sounds/pause-001.mp3' )">pause-001.mp3</button>
+      <button title="pause.mp3" onClick="playSound( '../../tambo/sounds/pause.mp3' )">pause.mp3</button>
+      <button title="play-pause-001.mp3" onClick="playSound( '../../tambo/sounds/play-pause-001.mp3' )">play-pause-001.mp3</button>
+      <button title="play-pause-002.mp3" onClick="playSound( '../../tambo/sounds/play-pause-002.mp3' )">play-pause-002.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="play-pause-003.mp3" onClick="playSound( '../../tambo/sounds/play-pause-003.mp3' )">play-pause-003.mp3</button>
+      <button title="play-pause-004.mp3" onClick="playSound( '../../tambo/sounds/play-pause-004.mp3' )">play-pause-004.mp3</button>
+      <button title="proportion-random-clicks-single.mp3" onClick="playSound( '../../tambo/sounds/proportion-random-clicks-single.mp3' )">proportion-random...</button>
+      <button title="radio-button-v2.mp3" onClick="playSound( '../../tambo/sounds/radio-button-v2.mp3' )">radio-button-v2.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="release-001.mp3" onClick="playSound( '../../tambo/sounds/release-001.mp3' )">release-001.mp3</button>
+      <button title="release-002.mp3" onClick="playSound( '../../tambo/sounds/release-002.mp3' )">release-002.mp3</button>
+      <button title="release.mp3" onClick="playSound( '../../tambo/sounds/release.mp3' )">release.mp3</button>
+      <button title="reset-all.mp3" onClick="playSound( '../../tambo/sounds/reset-all.mp3' )">reset-all.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="rhodes-chord.mp3" onClick="playSound( '../../tambo/sounds/rhodes-chord.mp3' )">rhodes-chord.mp3</button>
+      <button title="selection-arpeggio-001.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-001.mp3' )">selection-arpeggi...</button>
+      <button title="selection-arpeggio-002.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-002.mp3' )">selection-arpeggi...</button>
+      <button title="selection-arpeggio-003.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-003.mp3' )">selection-arpeggi...</button>
+    </div>
+    <div class="btn-group">
+      <button title="selection-arpeggio-004.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-004.mp3' )">selection-arpeggi...</button>
+      <button title="selection-arpeggio-005.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-005.mp3' )">selection-arpeggi...</button>
+      <button title="selection-arpeggio-006.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-006.mp3' )">selection-arpeggi...</button>
+      <button title="selection-arpeggio-007.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-007.mp3' )">selection-arpeggi...</button>
+    </div>
+    <div class="btn-group">
+      <button title="selection-arpeggio-008.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-008.mp3' )">selection-arpeggi...</button>
+      <button title="selection-arpeggio-009.mp3" onClick="playSound( '../../tambo/sounds/selection-arpeggio-009.mp3' )">selection-arpeggi...</button>
+      <button title="slider-click-01.mp3" onClick="playSound( '../../tambo/sounds/slider-click-01.mp3' )">slider-click-01.mp3</button>
+      <button title="slider-click-02.mp3" onClick="playSound( '../../tambo/sounds/slider-click-02.mp3' )">slider-click-02.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="step-back-001.mp3" onClick="playSound( '../../tambo/sounds/step-back-001.mp3' )">step-back-001.mp3</button>
+      <button title="step-back-002.mp3" onClick="playSound( '../../tambo/sounds/step-back-002.mp3' )">step-back-002.mp3</button>
+      <button title="step-back-v2.mp3" onClick="playSound( '../../tambo/sounds/step-back-v2.mp3' )">step-back-v2.mp3</button>
+      <button title="step-back.mp3" onClick="playSound( '../../tambo/sounds/step-back.mp3' )">step-back.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="step-forward-001.mp3" onClick="playSound( '../../tambo/sounds/step-forward-001.mp3' )">step-forward-001.mp3</button>
+      <button title="step-forward-002.mp3" onClick="playSound( '../../tambo/sounds/step-forward-002.mp3' )">step-forward-002.mp3</button>
+      <button title="step-forward-v2.mp3" onClick="playSound( '../../tambo/sounds/step-forward-v2.mp3' )">step-forward-v2.mp3</button>
+      <button title="step-forward.mp3" onClick="playSound( '../../tambo/sounds/step-forward.mp3' )">step-forward.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="strings-loop-middle-c-oscilloscope.mp3" onClick="playSound( '../../tambo/sounds/strings-loop-middle-c-oscilloscope.mp3' )">strings-loop-midd...</button>
+      <button title="thunder.mp3" onClick="playSound( '../../tambo/sounds/thunder.mp3' )">thunder.mp3</button>
+      <button title="wall-contact.mp3" onClick="playSound( '../../tambo/sounds/wall-contact.mp3' )">wall-contact.mp3</button>
+      <button title="winds-loop-c3-oscilloscope.mp3" onClick="playSound( '../../tambo/sounds/winds-loop-c3-oscilloscope.mp3' )">winds-loop-c3-osc...</button>
+    </div>
+    <div class="btn-group">
+      <button title="winds-loop-middle-c-oscilloscope.mp3" onClick="playSound( '../../tambo/sounds/winds-loop-middle-c-oscilloscope.mp3' )">winds-loop-middle...</button>
+      <button title="short-silence.wav" onClick="playSound( '../../tambo/sounds/short-silence.wav' )">short-silence.wav</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">vegas</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="boing.mp3" onClick="playSound( '../../vegas/sounds/boing.mp3' )">boing.mp3</button>
+      <button title="cheer.mp3" onClick="playSound( '../../vegas/sounds/cheer.mp3' )">cheer.mp3</button>
+      <button title="ding.mp3" onClick="playSound( '../../vegas/sounds/ding.mp3' )">ding.mp3</button>
+      <button title="organ.mp3" onClick="playSound( '../../vegas/sounds/organ.mp3' )">organ.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="trumpet.mp3" onClick="playSound( '../../vegas/sounds/trumpet.mp3' )">trumpet.mp3</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">vibe</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="empty.mp3" onClick="playSound( '../../vibe/sounds/empty.mp3' )">empty.mp3</button>
+      <button title="relative-path-sound.mp3" onClick="playSound( '../../vibe/sounds/relative-path-sound.mp3' )">relative-path-sou...</button>
+    </div>
+  </div>
+  <button type="button" class="collapsible">wave-interference</button>
+  <div class="content">
+    <div class="btn-group">
+      <button title="ethereal-flute-for-meter-loop.mp3" onClick="playSound( '../../wave-interference/sounds/ethereal-flute-for-meter-loop.mp3' )">ethereal-flute-fo...</button>
+      <button title="light-beam-loop-v5-eq-out-bass.mp3" onClick="playSound( '../../wave-interference/sounds/light-beam-loop-v5-eq-out-bass.mp3' )">light-beam-loop-v...</button>
+      <button title="organ-for-meter-loop.mp3" onClick="playSound( '../../wave-interference/sounds/organ-for-meter-loop.mp3' )">organ-for-meter-l...</button>
+      <button title="organ-v2-for-meter-loop.mp3" onClick="playSound( '../../wave-interference/sounds/organ-v2-for-meter-loop.mp3' )">organ-v2-for-mete...</button>
+    </div>
+    <div class="btn-group">
+      <button title="slider-click-v2-left.mp3" onClick="playSound( '../../wave-interference/sounds/slider-click-v2-left.mp3' )">slider-click-v2-l...</button>
+      <button title="slider-click-v2-right.mp3" onClick="playSound( '../../wave-interference/sounds/slider-click-v2-right.mp3' )">slider-click-v2-r...</button>
+      <button title="slider-clicks-idea-c-example-left.mp3" onClick="playSound( '../../wave-interference/sounds/slider-clicks-idea-c-example-left.mp3' )">slider-clicks-ide...</button>
+      <button title="speaker-pulse-v4.mp3" onClick="playSound( '../../wave-interference/sounds/speaker-pulse-v4.mp3' )">speaker-pulse-v4.mp3</button>
+    </div>
+    <div class="btn-group">
+      <button title="squishier-button-v3-007.mp3" onClick="playSound( '../../wave-interference/sounds/squishier-button-v3-007.mp3' )">squishier-button-...</button>
+      <button title="water-drop-v5-001.mp3" onClick="playSound( '../../wave-interference/sounds/water-drop-v5-001.mp3' )">water-drop-v5-001...</button>
+      <button title="water-drop-v5-002.mp3" onClick="playSound( '../../wave-interference/sounds/water-drop-v5-002.mp3' )">water-drop-v5-002...</button>
+      <button title="water-drop-v5-003.mp3" onClick="playSound( '../../wave-interference/sounds/water-drop-v5-003.mp3' )">water-drop-v5-003...</button>
+    </div>
+    <div class="btn-group">
+      <button title="water-drop-v5.mp3" onClick="playSound( '../../wave-interference/sounds/water-drop-v5.mp3' )">water-drop-v5.mp3</button>
+      <button title="wave-meter-saw-tone.mp3" onClick="playSound( '../../wave-interference/sounds/wave-meter-saw-tone.mp3' )">wave-meter-saw-to...</button>
+      <button title="wave-meter-smooth-tone.mp3" onClick="playSound( '../../wave-interference/sounds/wave-meter-smooth-tone.mp3' )">wave-meter-smooth...</button>
+    </div>
+  </div>
+
+</section>
+
+<!--script for collapsible areas-->
+<script>
+  const collapsibleList = document.getElementsByClassName( 'collapsible' );
+
+  for ( let i = 0; i < collapsibleList.length; i++ ) {
+    const collapsibleElement = collapsibleList[ i ];
+    collapsibleElement.addEventListener( 'click', () => {
+      collapsibleElement.classList.toggle( 'active' );
+      const content = collapsibleElement.nextElementSibling;
+      if ( content.style.display === 'block' ) {
+        content.style.display = 'none';
+      }
+      else {
+        content.style.display = 'block';
+      }
+    } );
+  }
+</script>
+
+</body>
+</html>

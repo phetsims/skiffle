@@ -1,0 +1,144 @@
+<!-- Copyright 2021, University of Colorado Boulder -->
+
+<!Doctype html>
+<html lang="en-us">
+<style>
+
+  body {
+    background-color: #FFDDAD;
+  }
+
+  .btn-group button {
+    background-color: #4CAF50; /* Green background */
+    border: 1px solid green; /* Green border */
+    color: white; /* White text */
+    padding: 10px 24px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+    float: left; /* Float the buttons side by side */
+    margin-bottom: 10px;
+  }
+
+  /* Clear floats (clearfix hack) */
+  .btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+
+  .btn-group button:not(:last-child) {
+    border-right: none; /* Prevent double borders */
+  }
+
+  /* Add a background color on hover */
+  .btn-group button:hover {
+    background-color: #3e8e41;
+  }
+
+  .collapsible {
+    background-color: #1e4e20;
+    color: whitesmoke;
+    cursor: pointer;
+    padding: 18px;
+    width: 75%;
+    border: 1px solid grey;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+  }
+
+  .active, .collapsible:hover {
+    background-color: #448344;
+  }
+
+  .content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #00aa88;
+    width: 75%;
+  }
+</style>
+<body>
+
+<h1>PhET Sound Board</h1>
+
+<script>
+
+  // create a Web Audio context
+  let audioContext = null;
+  if ( window.AudioContext ) {
+    audioContext = new window.AudioContext();
+  }
+  else if ( window.webkitAudioContext ) {
+    audioContext = new window.webkitAudioContext();
+  }
+  else {
+
+    // The browser doesn't support creating an audio context, create an empty object.  Failures will occur the first time
+    // any code tries to do anything with the audio context.
+    audioContext = {};
+    console.error( 'error: this browser does not support Web Audio' );
+  }
+
+  // Map.<string,AudioBuffer> - map of file paths to decoded audio buffers, used to cache decoded audio data
+  const filePathToDecodedAudioBufferMap = new Map();
+
+  // function to play a previously decoded audio buffer
+  const playAudioBuffer = audioBuffer => {
+    const bufferSource = audioContext.createBufferSource();
+    bufferSource.buffer = audioBuffer;
+    bufferSource.connect( audioContext.destination );
+    bufferSource.start();
+  };
+
+  // function to play a sound file, will used cached data if possible or will initiate decode if not
+  const playSound = soundUrl => {
+    const audioBuffer = filePathToDecodedAudioBufferMap.get( soundUrl );
+    if ( audioBuffer ) {
+
+      // This file has already been decoded, so just play it.
+      playAudioBuffer( audioBuffer );
+    }
+    else{
+
+      // This is the first time this file has been played, so it needs to be decoded and then played.
+      window.fetch( soundUrl )
+        .then( response => response.arrayBuffer() )
+        .then( arrayBuffer => audioContext.decodeAudioData( arrayBuffer ) )
+        .then( audioBuffer => {
+          filePathToDecodedAudioBufferMap.set( soundUrl, audioBuffer );
+          playAudioBuffer( audioBuffer );
+        } )
+      .catch( error => {
+          console.log( 'unable to play file ' + soundUrl + ', error = ' + error );
+      } );
+    }
+  }
+
+</script>
+
+<section>
+{{SOUND_CONTROL_CONTENT}}
+</section>
+
+<!--script for collapsible areas-->
+<script>
+  const collapsibleList = document.getElementsByClassName( 'collapsible' );
+
+  for ( let i = 0; i < collapsibleList.length; i++ ) {
+    const collapsibleElement = collapsibleList[ i ];
+    collapsibleElement.addEventListener( 'click', () => {
+      collapsibleElement.classList.toggle( 'active' );
+      const content = collapsibleElement.nextElementSibling;
+      if ( content.style.display === 'block' ) {
+        content.style.display = 'none';
+      }
+      else {
+        content.style.display = 'block';
+      }
+    } );
+  }
+</script>
+
+</body>
+</html>
