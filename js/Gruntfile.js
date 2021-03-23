@@ -92,7 +92,13 @@ module.exports = grunt => {
 
       // Read in the HTML file template.
       const soundBoardTemplateHtml = grunt.file.read( './html/sound-board-template.html' );
-      const soundBoardHtml = soundBoardTemplateHtml.replace( '{{SOUND_CONTROL_CONTENT}}', soundControlHtml );
+
+      // Add in a message about the file being built.
+      const message = '<!-- WARNING: This file was built, not hand generated, and should not be manually edited.  Use grunt to re-build. -->';
+      const soundBoardTemplateWithMessage = soundBoardTemplateHtml.replace( '{{BUILD_MESSAGE}}', message );
+
+      // Add in the HTML for controlling the sounds.
+      const soundBoardHtml = soundBoardTemplateWithMessage.replace( '{{SOUND_CONTROL_CONTENT}}', soundControlHtml );
 
       // Write the HTML file with the sound control content filled in.
       grunt.file.write( './html/sound-board.html', soundBoardHtml );
