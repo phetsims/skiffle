@@ -43,13 +43,36 @@ module.exports = grunt => {
       // The string that will ultimately contain the HTML that will list the sound files and allow a user to play them.
       let soundControlHtml = '';
 
-      // For each repo with sound, create collapsible button with content beneath it to play each of the sounds by
-      // pressing a button.
-      reposWithSoundFiles.forEach( repoWithSoundFiles => {
+      // Add the enclosing div for the accordion region.
+      soundControlHtml += '  <div className="accordion" id="accordionExample">\n';
 
-        // Add the HTML for the collapsible button for this repo.
-        soundControlHtml += `  <button type="button" class="collapsible">${repoWithSoundFiles}</button>\n`;
-        soundControlHtml += '  <div class="content">\n';
+      // For each repo with sound, create collapsible card with content beneath it to play each of the sounds by
+      // pressing a button.
+      reposWithSoundFiles.forEach( ( repoWithSoundFiles, index ) => {
+
+        // variables for filling in the HTML
+        const headingId = `heading${index}`;
+        const collapseId = `collapse${index}`;
+
+        // The set of sounds for each repo is on a bootstrap card.
+        soundControlHtml += '    <div class="card">\n';
+
+        // card header
+        const collapsedString = index > 0 ? ' collapsed' : '';
+        const ariaExpanded = ( index > 0 ).toString();
+        soundControlHtml += `      <div class="card-header" id="${headingId}">\n`;
+        soundControlHtml += '        <h5 class="mb-0">\n';
+        soundControlHtml += `          <button class="btn btn-link${collapsedString}" type="button" data-toggle="collapse" data-target="#${collapseId}" aria-expanded="${ariaExpanded}" aria-controls="${collapseId}">\n`;
+        soundControlHtml += `            ${repoWithSoundFiles}\n`;
+        soundControlHtml += '          </button>\n';
+        soundControlHtml += '        </h5>\n';
+        soundControlHtml += '      </div>\n';
+        soundControlHtml += '\n';
+
+        // card body
+        const classString = index > 0 ? 'collapse' : 'collapse show';
+        soundControlHtml += `      <div id="${collapseId}" class="${classString}" aria-labelledby="headingOne" data-parent="#accordionExample">\n`;
+        soundControlHtml += '        <div class="card-body">\n';
 
         // Get a list of the sounds for this repo.
         const pathToSoundsDirectory = `../${repoWithSoundFiles}/sounds/`;
@@ -57,38 +80,29 @@ module.exports = grunt => {
         const soundFileNames = grunt.file.expand( { filter: 'isFile' }, patterns );
 
         // Create buttons for the sounds and group them together.
-        const numberOfSoundsPerButtonGroup = 4;
-        for ( let i = 0; i < soundFileNames.length; i += numberOfSoundsPerButtonGroup ) {
+        soundFileNames.forEach( soundFileName => {
+          const soundFileNameOnly = soundFileName.substring( soundFileName.lastIndexOf( '/' ) + 1 );
 
-          // Output HTML for the button group.
-          soundControlHtml += '    <div class="btn-group">\n';
+          // If the name of the sound file is too long, create a shortened version with an ellipsis.
+          const maxButtonLabelLength = 20;
+          let buttonLabel;
+          if ( soundFileNameOnly.length > maxButtonLabelLength ) {
+            buttonLabel = `${soundFileNameOnly.substring( 0, maxButtonLabelLength - 3 )}...`;
+          }
+          else {
+            buttonLabel = soundFileNameOnly;
+          }
+          soundControlHtml += `      <button title="${soundFileNameOnly}" onClick="playSound( '../${soundFileName}' )">${buttonLabel}</button>\n`;
+        } );
 
-          // Extract the subset of sounds that will be controlled by this button group.
-          const soundsFilesForButtonGroup = soundFileNames.slice( i, i + numberOfSoundsPerButtonGroup );
-
-          // Create a button for each of the sounds.
-          soundsFilesForButtonGroup.forEach( soundFile => {
-            const soundFileNameOnly = soundFile.substring( soundFile.lastIndexOf( '/' ) + 1 );
-
-            // If the name of the sound file is too long, create a shortened version with an ellipsis.
-            const maxButtonLabelLength = 20;
-            let buttonLabel;
-            if ( soundFileNameOnly.length > maxButtonLabelLength ) {
-              buttonLabel = `${soundFileNameOnly.substring( 0, maxButtonLabelLength - 3 )}...`;
-            }
-            else {
-              buttonLabel = soundFileNameOnly;
-            }
-            soundControlHtml += `      <button title="${soundFileNameOnly}" onClick="playSound( '../${soundFile}' )">${buttonLabel}</button>\n`;
-          } );
-
-          // Close the button group div
-          soundControlHtml += '    </div>\n';
-        }
-
-        // Close the tags for this section.
-        soundControlHtml += '  </div>\n';
+        // Close the various card divs.
+        soundControlHtml += '        </div>\n';
+        soundControlHtml += '      </div>\n';
+        soundControlHtml += '    </div>\n';
       } );
+
+      // Add the closing div tag for the accordion region.
+      soundControlHtml += '  </div>\n';
 
       // Read in the HTML file template.
       const soundBoardTemplateHtml = grunt.file.read( './html/sound-board-template.html' );
