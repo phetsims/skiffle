@@ -4,6 +4,7 @@
   "description": "An HTML page that allows users to try out all the currently available sounds used in PhET sims.",
   "license": "GPL-3.0",
   "devDependencies": {
+    "dot": "~1.1.3",
     "grunt": "~1.1.0",
     "winston": "^0.9.0"
   },

@@ -3,7 +3,7 @@
 <!Doctype html>
 <html lang="en-us">
 
-{{BUILD_MESSAGE}}
+{{=it.buildMessage}}
 
 <head>
   <meta charset="UTF-8">
@@ -65,16 +65,38 @@
           filePathToDecodedAudioBufferMap.set( soundUrl, audioBuffer );
           playAudioBuffer( audioBuffer );
         } )
-      .catch( error => {
+        .catch( error => {
           console.log( 'unable to play file ' + soundUrl + ', error = ' + error );
-      } );
+        } );
     }
   }
 
 </script>
 
 <section>
-{{SOUND_CONTROL_CONTENT}}
+  <div className="accordion" id="accordionExample">
+
+    <!-- Each repo that uses sounds will be listed on a collapsible card with the sounds in the collapsible region -->
+    {{~it.repoSoundInfoArray :value}}
+    <div class="card">
+      <div class="card-header" id="{{=value.cardHeaderID}}">
+        <h5 class="mb-0">
+          <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{=value.collapseID}}" aria-expanded="false" aria-controls="#{{=value.collapseID}}">
+            {{=value.repoName}}
+          </button>
+        </h5>
+      </div>
+
+      <div id="{{=value.collapseID}}" class="collapse" aria-labelledby="{{=value.cardHeaderID}}" data-parent="#accordionExample">
+        <div class="card-body">
+          {{~value.individualSoundsInfoArray :value2:index2}}
+          <button title="{{=value2.buttonTitle}}" onClick="playSound( '{{=value2.soundFileFullPath}}' )">{{=value2.buttonLabel}}</button>
+          {{~}}
+        </div>
+      </div>
+    </div>
+    {{~}}
+  </div>
 </section>
 
 </body>

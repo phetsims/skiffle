@@ -9,7 +9,7 @@
 'use strict';
 
 // modules
-const grunt = require( 'grunt' ); // eslint-disable-line
+const dot = require( 'dot' );
 const Gruntfile = require( '../../chipper/js/grunt/Gruntfile' );
 const winston = require( 'winston' );
 
@@ -21,10 +21,26 @@ module.exports = grunt => {
 
   grunt.registerTask(
     'build',
-    'Build the sound board HTML file',
+    'Build the soundboard HTML file',
     () => {
 
-      // Read in the list of active repositories, splitting the lines into separate strings.
+      // Configure the dot templating engine to our liking.
+      dot.templateSettings.strip = false;
+
+      // Read in the template file.
+      let templateFileContents;
+      try {
+        templateFileContents = grunt.file.read( './html/sound-board-template.html' );
+      }
+      catch( err ) {
+        winston.error( err.toString() );
+        grunt.fail.fatal( 'Unable to open template file, aborting build.' );
+      }
+
+      // Compile the template into a function.
+      const templateFunction = dot.template( templateFileContents );
+
+      // Read in the list of active PhET repositories, splitting the lines into separate strings.
       let activeRepos = grunt.file.read( ACTIVE_REPOS_FILE ).split( '\n' );
 
       // On at least some systems, such as Windows, splitting the lines up this way results in there being a carriage
@@ -40,46 +56,20 @@ module.exports = grunt => {
         return grunt.file.exists( pathToCheck );
       } );
 
-      // The string that will ultimately contain the HTML that will list the sound files and allow a user to play them.
-      let soundControlHtml = '';
+      // {Object[]} - an array of objects containing information about the sounds for each repo, populated below
+      const repoSoundInfoArray = [];
 
-      // Add the enclosing div for the accordion region.
-      soundControlHtml += '  <div className="accordion" id="accordionExample">\n';
-
-      // For each repo with sound, create collapsible card with content beneath it to play each of the sounds by
-      // pressing a button.
-      reposWithSoundFiles.forEach( ( repoWithSoundFiles, index ) => {
-
-        // variables for filling in the HTML
-        const headingId = `heading${index}`;
-        const collapseId = `collapse${index}`;
-
-        // The set of sounds for each repo is on a bootstrap card.
-        soundControlHtml += '    <div class="card">\n';
-
-        // card header
-        const collapsedString = index > 0 ? ' collapsed' : '';
-        const ariaExpanded = ( index > 0 ).toString();
-        soundControlHtml += `      <div class="card-header" id="${headingId}">\n`;
-        soundControlHtml += '        <h5 class="mb-0">\n';
-        soundControlHtml += `          <button class="btn btn-link${collapsedString}" type="button" data-toggle="collapse" data-target="#${collapseId}" aria-expanded="${ariaExpanded}" aria-controls="${collapseId}">\n`;
-        soundControlHtml += `            ${repoWithSoundFiles}\n`;
-        soundControlHtml += '          </button>\n';
-        soundControlHtml += '        </h5>\n';
-        soundControlHtml += '      </div>\n';
-        soundControlHtml += '\n';
-
-        // card body
-        const classString = index > 0 ? 'collapse' : 'collapse show';
-        soundControlHtml += `      <div id="${collapseId}" class="${classString}" aria-labelledby="headingOne" data-parent="#accordionExample">\n`;
-        soundControlHtml += '        <div class="card-body">\n';
+      // Go through each repo on the list and create an object with information about the sounds it contains.  This will
+      // be used to fill in the HTML template and thus create the soundboard HTML document.
+      reposWithSoundFiles.forEach( ( repoName, index ) => {
 
         // Get a list of the sounds for this repo.
-        const pathToSoundsDirectory = `../${repoWithSoundFiles}/sounds/`;
+        const pathToSoundsDirectory = `../${repoName}/sounds/`;
         const patterns = [ `${pathToSoundsDirectory}*.mp3`, `${pathToSoundsDirectory}*.wav` ];
         const soundFileNames = grunt.file.expand( { filter: 'isFile' }, patterns );
+        const individualSoundsInfoArray = [];
 
-        // Create buttons for the sounds and group them together.
+        // Create objects with the information needed in the template for each of the sounds.
         soundFileNames.forEach( soundFileName => {
           const soundFileNameOnly = soundFileName.substring( soundFileName.lastIndexOf( '/' ) + 1 );
 
@@ -92,32 +82,33 @@ module.exports = grunt => {
           else {
             buttonLabel = soundFileNameOnly;
           }
-          soundControlHtml += `      <button title="${soundFileNameOnly}" onClick="playSound( '../${soundFileName}' )">${buttonLabel}</button>\n`;
+
+          individualSoundsInfoArray.push( {
+            buttonTitle: soundFileNameOnly,
+            soundFileFullPath: `../${soundFileName}`,
+            buttonLabel: buttonLabel
+          } );
+
         } );
 
-        // Close the various card divs.
-        soundControlHtml += '        </div>\n';
-        soundControlHtml += '      </div>\n';
-        soundControlHtml += '    </div>\n';
+        repoSoundInfoArray.push( {
+          repoName: repoName,
+          cardHeaderID: `heading${index}`,
+          collapseID: `collapse${index}`,
+          individualSoundsInfoArray: individualSoundsInfoArray
+        } );
       } );
 
-      // Add the closing div tag for the accordion region.
-      soundControlHtml += '  </div>\n';
+      // Create the output HTML by invoking the template functions with the values needed to fill it in.
+      const soundBoardHtml = templateFunction( {
+        buildMessage: '<!-- WARNING: This file was built, not hand generated, and should not be manually edited.  Use grunt to re-build. -->',
+        repoSoundInfoArray: repoSoundInfoArray
+      } );
 
-      // Read in the HTML file template.
-      const soundBoardTemplateHtml = grunt.file.read( './html/sound-board-template.html' );
-
-      // Add in a message about the file being built.
-      const message = '<!-- WARNING: This file was built, not hand generated, and should not be manually edited.  Use grunt to re-build. -->';
-      const soundBoardTemplateWithMessage = soundBoardTemplateHtml.replace( '{{BUILD_MESSAGE}}', message );
-
-      // Add in the HTML for controlling the sounds.
-      const soundBoardHtml = soundBoardTemplateWithMessage.replace( '{{SOUND_CONTROL_CONTENT}}', soundControlHtml );
-
-      // Write the HTML file with the sound control content filled in.
+      // Write the output file.
       grunt.file.write( './html/sound-board.html', soundBoardHtml );
 
-      winston.info( 'Done.' );
+      winston.info( 'Build complete.' );
     }
   );
 
