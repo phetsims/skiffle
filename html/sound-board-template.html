@@ -106,11 +106,13 @@
         <div id="{{=value.collapseID}}" class="collapse" aria-labelledby="{{=value.cardHeaderID}}"
              data-parent="#accordionExample">
           <div class="card-body">
+            <div class="container">
             {{~value.individualSoundsInfoArray :value2:index2}}
-            <button title="{{=value2.buttonTitle}}" onClick="playSound( '{{=value2.soundFileFullPath}}' )">
+            <button class="col-lg-3" title="{{=value2.buttonTitle}}" onClick="playSound( '{{=value2.soundFileFullPath}}' )">
               {{=value2.buttonLabel}}
             </button>
             {{~}}
+            </div>
           </div>
         </div>
       </div>
