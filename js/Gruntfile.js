@@ -74,7 +74,7 @@ module.exports = grunt => {
           const soundFileNameOnly = soundFileName.substring( soundFileName.lastIndexOf( '/' ) + 1 );
 
           // If the name of the sound file is too long, create a shortened version with an ellipsis.
-          const maxButtonLabelLength = 20;
+          const maxButtonLabelLength = 25;
           let buttonLabel;
           if ( soundFileNameOnly.length > maxButtonLabelLength ) {
             buttonLabel = `${soundFileNameOnly.substring( 0, maxButtonLabelLength - 3 )}...`;
