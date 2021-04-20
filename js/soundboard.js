@@ -20,15 +20,36 @@ else {
   console.error( 'error: this browser does not support Web Audio' );
 }
 
-// Map.<string,AudioBuffer> - map of file paths to decoded audio buffers, used to cache decoded audio data
+// {Map.<string,AudioBuffer>} - map of file paths to decoded audio buffers, used to cache decoded audio data
 const filePathToDecodedAudioBufferMap = new Map();
 
-// function to play a previously decoded audio buffer
+// {Map.<AudioBuffer,AudioBufferSourceNode>} - map of audio buffers to buffer source nodes, used to stop longer sounds
+const audioBufferToBufferSourceNodeMap = new Map();
+
+// function to play a previously decoded audio buffer, or stop playback that is already in progress
 const playAudioBuffer = audioBuffer => {
-  const bufferSource = audioContext.createBufferSource();
-  bufferSource.buffer = audioBuffer;
-  bufferSource.connect( audioContext.destination );
-  bufferSource.start();
+
+  // Check to see if there is an entry in the audio-buffer-to-buffer-source map.  If there is, it means this sound is
+  // currently playing and should be stopped.  This essentially allows users to toggle longer sounds, such as those that
+  // used as loops.
+  if ( audioBufferToBufferSourceNodeMap.has( audioBuffer ) ) {
+
+    // Stop the sound.  The onended handler should remove it from the map.
+    audioBufferToBufferSourceNodeMap.get( audioBuffer ).stop();
+  }
+  else {
+
+    // This sound isn't currently playing, so create an audio buffer source node and start it up.
+    const bufferSource = audioContext.createBufferSource();
+    bufferSource.buffer = audioBuffer;
+    bufferSource.connect( audioContext.destination );
+    audioBufferToBufferSourceNodeMap.set( audioBuffer, bufferSource );
+    bufferSource.onended = () => {
+      audioBufferToBufferSourceNodeMap.delete( audioBuffer );
+      bufferSource.onended = null;
+    };
+    bufferSource.start();
+  }
 };
 
 // function to play a sound file, will used cached data if possible or will initiate decode if not
