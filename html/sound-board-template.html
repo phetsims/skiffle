@@ -83,13 +83,13 @@
     <div class="row">
       <div class="col-lg-12 text-center">
         <h1 class="mt-5">PhET Soundboard</h1>
-        <p class="lead">Click a repository name below to see and try out the associated sounds.</p>
+        <p class="lead">Click a repository name for an interactive list of the associated sounds.</p>
       </div>
     </div>
   </div>
 
   <div class="container">
-    <div className="accordion" id="accordionExample">
+    <div className="accordion" id="repoListAccordion">
 
       <!-- Each repo that uses sounds will be listed on a collapsible card with the sounds in the collapsible region -->
       {{~it.repoSoundInfoArray :value}}
@@ -104,10 +104,10 @@
         </div>
 
         <div id="{{=value.collapseID}}" class="collapse" aria-labelledby="{{=value.cardHeaderID}}"
-             data-parent="#accordionExample">
+             data-parent="#repoListAccordion">
           <div class="card-body">
             {{~value.individualSoundsInfoArray :value2:index2}}
-            <button class="btn btn-primary col-lg-3 mt-3 ml-3" title="{{=value2.buttonTitle}}" onClick="playSound( '{{=value2.soundFileFullPath}}' )">
+            <button class="btn btn-info col-lg-3 mt-3 ml-3" title="{{=value2.buttonTitle}}" onClick="playSound( '{{=value2.soundFileFullPath}}' )">
               {{=value2.buttonLabel}}
             </button>
             {{~}}
