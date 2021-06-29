@@ -6,7 +6,6 @@
  * @author John Blanco (PhET Interactive Simulations)
  */
 
-'use strict';
 
 // modules
 const dot = require( 'dot' );
