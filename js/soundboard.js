@@ -2,6 +2,8 @@
 
 /**
  * JavaScript for the soundboard HTML file.
+ *
+ * @author John Blanco (PhET Interactive Simulations)
  */
 
 // create a Web Audio context
