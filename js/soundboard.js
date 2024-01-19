@@ -1,4 +1,4 @@
-// Copyright 2021, University of Colorado Boulder
+// Copyright 2021-2024, University of Colorado Boulder
 
 /**
  * JavaScript for the soundboard HTML file.
