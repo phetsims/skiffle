@@ -16,18 +16,6 @@
     "extends": "../chipper/eslint/node_eslintrc.js",
     "globals": {
       "skiffle": "readonly"
-    },
-    "overrides": [
-      {
-        "files": [
-          "**/*.ts"
-        ],
-        "parserOptions": {
-          "project": [
-            "../chipper/tsconfig/eslint-all/tsconfig.json"
-          ]
-        }
-      }
-    ]
+    }
   }
 }
