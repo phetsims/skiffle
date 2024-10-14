@@ -9,7 +9,7 @@
 
 // modules
 const dot = require( 'dot' );
-const Gruntfile = require( '../../chipper/js/grunt/Gruntfile' );
+const Gruntfile = require( '../../chipper/Gruntfile' );
 const winston = require( 'winston' );
 
 // constants
