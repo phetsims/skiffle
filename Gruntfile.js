@@ -1,5 +1,13 @@
-// Copyright 2021, University of Colorado Boulder
+// Copyright 2021-2024, University of Colorado Boulder
 
+const Gruntfile = require( '../chipper/Gruntfile' );
+const registerTasks = require( '../perennial-alias/js/grunt/util/registerTasks' );
 
-// use sound board's gruntfile
-module.exports = require( './js/Gruntfile.js' );
+/**
+ * Dot grunt tasks
+ * @author Jonathan Olson <jonathan.olson@colorado.edu>
+ */
+module.exports = function( grunt ) {
+  Gruntfile( grunt ); // use chipper's gruntfile
+  registerTasks( grunt, `${__dirname}/js/grunt/tasks/` ); // second so it overrides the default task
+};
