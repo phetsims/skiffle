@@ -6,6 +6,8 @@
  * @author John Blanco (PhET Interactive Simulations)
  */
 
+/* global window */
+
 // create a Web Audio context
 let audioContext = null;
 if ( window.AudioContext ) {
