@@ -5,4 +5,4 @@
  * @author John Blanco (PhET Interactive Simulations)
  */
 
-require( './build' );
+require( './build.js' );
