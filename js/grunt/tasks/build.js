@@ -8,8 +8,8 @@
 
 // modules
 const dot = require( 'dot' );
-import winston from '../../../../perennial/js/npm-dependencies/winston.js';
 import grunt from '../../../../perennial/js/npm-dependencies/grunt.js';
+import winston from '../../../../perennial/js/npm-dependencies/winston.js';
 
 // constants
 const ACTIVE_REPOS_FILE = '../perennial/data/active-repos';
