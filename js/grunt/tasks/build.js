@@ -24,7 +24,7 @@ try {
 }
 catch( err ) {
   winston.error( err.toString() );
-  grunt.fail.fatal( 'Unable to open template file, aborting build.' );
+  throw new Error( 'Unable to open template file, aborting build.' );
 }
 
 // Compile the template into a function.
