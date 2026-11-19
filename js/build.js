@@ -34,7 +34,8 @@ const htmlDir = path.join( __dirname, '..', 'html' );
 const relativeToTotality = path.relative( htmlDir, totalityPath );
 
 // Constants
-const ACTIVE_REPOS_FILE = path.join( totalityPath, 'perennial-alias/data/active-repos' );
+const PROJECTS_PATH = path.join( totalityPath, 'projects' );
+const ACTIVE_REPOS_FILE = path.join( PROJECTS_PATH, 'scenerystack/src/perennial-alias/data/active-repos' );
 const TEMPLATE_FILE = path.join( __dirname, '..', 'html', 'sound-board-template.html' );
 const OUTPUT_FILE = path.join( __dirname, '..', 'html', 'sound-board.html' );
 
@@ -52,9 +53,25 @@ let activeRepos = fs.readFileSync( ACTIVE_REPOS_FILE, 'utf8' ).split( '\n' );
 activeRepos = activeRepos.map( repo => repo.replace( '\r', '' ).trim() );
 activeRepos = activeRepos.filter( repo => repo.length > 0 );
 
+// Lists the names of the directories directly inside a directory.
+const getSubdirectories = directory => fs.readdirSync( directory, { withFileTypes: true } )
+  .filter( entry => entry.isDirectory() && !entry.name.startsWith( '.' ) && entry.name !== 'node_modules' )
+  .map( entry => entry.name );
+
+// Where each repo is, relative to the totality checkout, keyed by its name. Totality groups its repos two levels
+// below projects/, such as projects/simstack/sims/friction and projects/scenerystack/src/tambo.
+const repoLocations = {};
+getSubdirectories( PROJECTS_PATH ).forEach( project => {
+  getSubdirectories( path.join( PROJECTS_PATH, project ) ).forEach( group => {
+    getSubdirectories( path.join( PROJECTS_PATH, project, group ) ).forEach( repo => {
+      repoLocations[ repo ] = `projects/${project}/${group}/${repo}`;
+    } );
+  } );
+} );
+
 // Make a list of all repos with sound files.
 const reposWithSoundFiles = activeRepos.filter( repo => {
-  return fs.existsSync( path.join( totalityPath, repo, 'sounds' ) );
+  return repoLocations[ repo ] && fs.existsSync( path.join( totalityPath, repoLocations[ repo ], 'sounds' ) );
 } );
 
 // {Object[]} - an array of objects containing information about the sounds for each repo
@@ -63,7 +80,7 @@ const repoSoundInfoArray = [];
 // Go through each repo on the list and create an object with information about the sounds it contains.
 reposWithSoundFiles.forEach( ( repoName, index ) => {
 
-  const soundsDir = path.join( totalityPath, repoName, 'sounds' );
+  const soundsDir = path.join( totalityPath, repoLocations[ repoName ], 'sounds' );
   const soundFiles = glob.sync( '*.{mp3,wav}', { cwd: soundsDir } );
   const individualSoundsInfoArray = [];
 
@@ -81,7 +98,7 @@ reposWithSoundFiles.forEach( ( repoName, index ) => {
 
     individualSoundsInfoArray.push( {
       buttonTitle: soundFileName,
-      soundFileFullPath: `${relativeToTotality}/${repoName}/sounds/${soundFileName}`,
+      soundFileFullPath: `${relativeToTotality}/${repoLocations[ repoName ]}/sounds/${soundFileName}`,
       buttonLabel: buttonLabel
     } );
   } );
